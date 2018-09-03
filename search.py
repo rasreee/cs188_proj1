@@ -138,8 +138,10 @@ def breadthFirstSearch(problem):
     queue.push(currentNode)
 
     bfsOutput = util.Queue()
+    foundGoalState = False
     while not queue.isEmpty():
-        if problem.isGoalState(currentNode):
+        if currentNode is not problem.getStartState() and problem.isGoalState(currentNode[1]):
+            foundGoalState = True
             break
         currentNode = queue.pop()
         bfsOutput.push(currentNode)
@@ -153,12 +155,15 @@ def breadthFirstSearch(problem):
             if successor not in visited:
                 visited.append(successor)
                 queue.push(successor)
+    print("FOUND GOAL STATE BEFORE EMPTY QUEUE", foundGoalState)
+    bfsOutput.printSelf()
 
     actionsStack = util.Stack()
     while parents[parents[currentNode]] is not None:
         actionsStack.push(parents[currentNode])
         currentNode = parents[currentNode]
-        
+    # actionsStack.printSelf()
+
     return actionObjectVersion(actionsStack)
 
 def uniformCostSearch(problem):
