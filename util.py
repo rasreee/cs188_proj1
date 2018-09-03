@@ -175,6 +175,10 @@ class Queue:
         "Returns true if the queue is empty"
         return len(self.list) == 0
 
+    def contains(self, item):
+        "Returns true if the queue contains this item"
+        return (item in self.list)
+
     def printSelf(self):
         "Prints contents of queue"
         print("Queue contents:", self.list)
