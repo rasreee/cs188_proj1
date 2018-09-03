@@ -133,11 +133,14 @@ def breadthFirstSearch(problem):
     queue = util.Queue()
     currentNode = problem.getStartState()
 
+    parents = {problem.getStartState(): None}  # Assign parent of source node as Null
     visited.append(currentNode)
     queue.push(currentNode)
 
     bfsOutput = util.Queue()
     while not queue.isEmpty():
+        if problem.isGoalState(currentNode):
+            break
         currentNode = queue.pop()
         bfsOutput.push(currentNode)
         if currentNode == problem.getStartState():
@@ -145,19 +148,18 @@ def breadthFirstSearch(problem):
         else:
             successors = problem.getSuccessors(currentNode[0])
         for successor in successors:
+            if successor not in parents:
+                parents[successor] = currentNode
             if successor not in visited:
                 visited.append(successor)
                 queue.push(successor)
-    bfsOutput.printSelf()
 
-    # Now that BFS is done, output the actions list to the goal
-    actionsList = []
-    currentNode = bfsOutput.pop()
-    while not problem.isGoalState(currentNode) and not bfsOutput.isEmpty():
-        currentNode = bfsOutput.pop()
-        actionsList.append(currentNode[1])
-
-    return actionObjectVersion(actionsList)
+    actionsStack = util.Stack()
+    while parents[parents[currentNode]] is not None:
+        actionsStack.push(parents[currentNode])
+        currentNode = parents[currentNode]
+        
+    return actionObjectVersion(actionsStack)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -185,21 +187,21 @@ def noMoreSuccessors(successors, visited):
             return False
     return True
 
-def actionObjectVersion(actionsList):
-    "Converts list of String directions to actual direction objects NORTH, SOUTH, EAST, WEST"
+def actionObjectVersion(stack):
+    """Converts stack of String directions to actual direction objects NORTH, SOUTH, EAST, WEST
+    making sure to exclude start"""
     from game import Directions
     result = []
-    i = 0
-    while i < len(actionsList):
-        if actionsList[i] == "North":
+    while not stack.isEmpty():
+        current = stack.pop()
+        if current[1] == "North":
             result.append(Directions.NORTH)
-        if actionsList[i] == "East":
+        if current[1] == "East":
             result.append(Directions.EAST)
-        if actionsList[i] == "South":
+        if current[1] == "South":
             result.append(Directions.SOUTH)
-        else:
+        if current[1] == "West":
             result.append(Directions.WEST)
-        i += 1
     return result
 
 # Abbreviations
