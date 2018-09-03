@@ -91,33 +91,36 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
 
     actionsQueue = util.Queue()
-    visitedStack = util.Stack()
+    visitedQueue = util.Queue()
+    treeQueue = util.Queue()
 
     currentNode = problem.getStartState()
     successors = problem.getSuccessors(currentNode)
-    visitedStack.push(currentNode)
+    visitedQueue.push(currentNode)
+    treeQueue.push(currentNode)
 
-    while not noMoreSuccessors(successors, visitedStack):
+    while not noMoreSuccessors(successors, visitedQueue):
         currentNode = successors[0]
-        visitedStack.printSelf()
-        visitedStack.push(currentNode)
-        print(visitedStack)
+        visitedQueue.printSelf()
+        visitedQueue.push(currentNode)
+        treeQueue.push(currentNode)
         if currentNode == problem.getStartState():
             successors = problem.getSuccessors(currentNode)
         else:
             successors = problem.getSuccessors(currentNode[0])
 
-    currentNode = visitedStack.pop()
-    while not visitedStack.isEmpty():
-        actionsQueue.push(currentNode)
+    currentNode = visitedQueue.pop()
+    while not visitedQueue.isEmpty():
         if currentNode == problem.getStartState():
-            problem.getSuccessors(currentNode)
+            successors = problem.getSuccessors(currentNode)
         else:
             successors = problem.getSuccessors(currentNode[0])
         for successor in successors:
-            if successor not in visitedStack:
-                visitedStack.push(successor)
-        currentNode = visitedStack.pop()
+            if not visitedQueue.contains(successor):
+                visitedQueue.push(successor)
+                treeQueue.push(successor)
+                break
+        currentNode = visitedQueue.pop()
 
     actionsQueue.printSelf()
     actionsList = []
