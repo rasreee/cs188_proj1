@@ -129,8 +129,35 @@ def depthFirstSearch(problem):
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    visited = []
+    queue = util.Queue()
+    currentNode = problem.getStartState()
+
+    visited.append(currentNode)
+    queue.push(currentNode)
+
+    bfsOutput = util.Queue()
+    while not queue.isEmpty():
+        currentNode = queue.pop()
+        bfsOutput.push(currentNode)
+        if currentNode == problem.getStartState():
+            successors = problem.getSuccessors(currentNode)
+        else:
+            successors = problem.getSuccessors(currentNode[0])
+        for successor in successors:
+            if successor not in visited:
+                visited.append(successor)
+                queue.push(successor)
+    bfsOutput.printSelf()
+
+    # Now that BFS is done, output the actions list to the goal
+    actionsList = []
+    currentNode = bfsOutput.pop()
+    while not problem.isGoalState(currentNode) and not bfsOutput.isEmpty():
+        currentNode = bfsOutput.pop()
+        actionsList.append(currentNode[1])
+
+    return actionObjectVersion(actionsList)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -157,6 +184,23 @@ def noMoreSuccessors(successors, visited):
         if not visited.contains(successor):
             return False
     return True
+
+def actionObjectVersion(actionsList):
+    "Converts list of String directions to actual direction objects NORTH, SOUTH, EAST, WEST"
+    from game import Directions
+    result = []
+    i = 0
+    while i < len(actionsList):
+        if actionsList[i] == "North":
+            result.append(Directions.NORTH)
+        if actionsList[i] == "East":
+            result.append(Directions.EAST)
+        if actionsList[i] == "South":
+            result.append(Directions.SOUTH)
+        else:
+            result.append(Directions.WEST)
+        i += 1
+    return result
 
 # Abbreviations
 bfs = breadthFirstSearch
