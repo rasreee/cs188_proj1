@@ -99,9 +99,11 @@ def depthFirstSearch(problem):
 
     while not noMoreSuccessors(successors, visitedStack):
         currentNode = successors[0]
+        visitedStack.printSelf()
         visitedStack.push(currentNode)
+        print(visitedStack)
         if currentNode == problem.getStartState():
-            problem.getSuccessors(currentNode)
+            successors = problem.getSuccessors(currentNode)
         else:
             successors = problem.getSuccessors(currentNode[0])
 

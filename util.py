@@ -151,6 +151,10 @@ class Stack:
         "Returns true if the stack contains this item"
         return (item in self.list)
 
+    def printSelf(self):
+        "Prints contents of stack"
+        print("Stack contents:", self.list)
+
 class Queue:
     "A container with a first-in-first-out (FIFO) queuing policy."
     def __init__(self):
@@ -173,7 +177,7 @@ class Queue:
 
     def printSelf(self):
         "Prints contents of queue"
-        print("Queue contents:" + self.list)
+        print("Queue contents:", self.list)
 
 class PriorityQueue:
     """
