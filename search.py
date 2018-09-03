@@ -86,49 +86,48 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    visited = []
+    stack = util.Stack()
+    dfsOutput = util.Queue()
 
-    actionsQueue = util.Queue()
-    visitedQueue = util.Queue()
-    treeQueue = util.Queue()
+    stack.push(problem.getStartState())
+    dfsOutput.push(problem.getStartState())
+    visited.append(problem.getStartState())
+    parents = {problem.getStartState(): None}
 
     currentNode = problem.getStartState()
     successors = problem.getSuccessors(currentNode)
-    visitedQueue.push(currentNode)
-    treeQueue.push(currentNode)
-
-    while not noMoreSuccessors(successors, visitedQueue):
+    foundGoalState = False
+    while not noMoreSuccessors(successors, visited):
+        if currentNode is not problem.getStartState() and problem.isGoalState(successors[0]):
+            foundGoalState = True
+            print("FOUND GOAL STATE", foundGoalState)
+            break
+        stack.push(successors[0])
+        dfsOutput.push(successors[0])
+        visited.append(successors[0])
+        if successors[0] not in parents:
+            parents[successors[0]] = currentNode
         currentNode = successors[0]
-        visitedQueue.printSelf()
-        visitedQueue.push(currentNode)
-        treeQueue.push(currentNode)
+        successors = problem.getSuccessors(currentNode[0])
+
+    if foundGoalState:
+        return returnActionsList(problem.getStartState(), successors[0], parents)
+
+    # Check for unvisited nodes by back-tracking the stack
+    currentNode = stack.pop()
+    while not stack.isEmpty():
         if currentNode == problem.getStartState():
-            successors = problem.getSuccessors(currentNode)
+            stack.pop()  # Now stack is empty
+            break
+        successors = problem.getSuccessors(currentNode[0])
+        if not containsGoalNode(successors, problem):
+            visitRemainingNodes(currentNode, successors, visited, stack, dfsOutput, parents)
         else:
-            successors = problem.getSuccessors(currentNode[0])
+            goalNode = getGoalNode(successors, problem, currentNode, parents)
+            return returnActionsList(problem.getStartState(), goalNode, parents)
 
-    currentNode = visitedQueue.pop()
-    while not visitedQueue.isEmpty():
-        if currentNode == problem.getStartState():
-            successors = problem.getSuccessors(currentNode)
-        else:
-            successors = problem.getSuccessors(currentNode[0])
-        for successor in successors:
-            if not visitedQueue.contains(successor):
-                visitedQueue.push(successor)
-                treeQueue.push(successor)
-                break
-        currentNode = visitedQueue.pop()
-
-    actionsQueue.printSelf()
-    actionsList = []
-    while not actionsQueue.isEmpty():
-        action = actionsQueue.pop()
-        actionsList.append(action[1])
-
-    return actionsList
+        currentNode = stack.pop()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
@@ -157,9 +156,64 @@ def noMoreSuccessors(successors, visited):
     if visited == [] and successors != []:
         return True
     for successor in successors:
-        if not visited.contains(successor):
+        if successor not in visited:
             return False
     return True
+
+def visitRemainingNodes(currentNode, successors, visited, stack, dfsOutput, parents):
+    "Mutatively visits a successor if it hasn't already been visited"
+    if noMoreSuccessors(successors, visited):
+        return
+    else:
+        for successor in successors:
+            if successor not in visited:
+                visited.append(successor)
+                stack.push(successor)
+                dfsOutput.push(successor)
+                if successor not in parents:
+                    parents[successor] = currentNode
+                return
+
+def returnActionsList(start, goal, parents):
+    "Returns Direction objects' path list from start to goal"
+    actionsStack = util.Stack()
+    currentNode = goal
+    while parents[parents[currentNode]] is not None:
+        actionsStack.push(parents[currentNode])
+        currentNode = parents[currentNode]
+    return actionObjectVersion(actionsStack)
+
+def actionObjectVersion(stack):
+    """Converts stack of String directions to actual direction objects NORTH, SOUTH, EAST, WEST
+    making sure to exclude start"""
+    from game import Directions
+    result = []
+    while not stack.isEmpty():
+        current = stack.pop()
+        if current[1] == "North":
+            result.append(Directions.NORTH)
+        if current[1] == "East":
+            result.append(Directions.EAST)
+        if current[1] == "South":
+            result.append(Directions.SOUTH)
+        if current[1] == "West":
+            result.append(Directions.WEST)
+    return result
+
+def containsGoalNode(successors, problem):
+    "Returns whether the goal node is one of the successors"
+    if getGoalNode(successors, problem) is None:
+        return False
+    return True
+
+def getGoalNode(successors, problem, currentNode, parents):
+    "Returns the goal node from the list of successors, and marks its parent as currentNode"
+    for successor in successors:
+        if problem.isGoalState(successor):
+            if successor in parents:
+                parents[successor] = currentNode
+            return successor
+    return None
 
 # Abbreviations
 bfs = breadthFirstSearch
