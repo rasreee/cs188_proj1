@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -86,40 +86,52 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    visited = []
     stack = util.Stack()
-    dfsOutput = util.Queue()
+    visited = []
 
-    stack.push(problem.getStartState())
-    dfsOutput.push(problem.getStartState())
-    visited.append(problem.getStartState())
-    parents = {problem.getStartState(): None}
+    currentNode = (problem.getStartState(), None, 0) # Initialize in the same way as other successor nodes
+    successors = problem.getSuccessors(currentNode[0])
+    parents = {(problem.getStartState(), None, 0): None}
+    goalNode = None
+    for successor in successors:
+        successorCoordinates = successor[0]
+        if successorCoordinates not in visited:
+            if problem.isGoalState(successorCoordinates):
+                if successor not in parents:
+                    parents[successor] = currentNode
+                goalNode = successor
+                break
+            else:
+                if successor not in parents:
+                    parents[successor] = currentNode
+                stack.push(successor)
+                visited.append(successorCoordinates)
 
-    currentNode = problem.getStartState()
-    successors = problem.getSuccessors(currentNode)
-    foundGoalState = False
-    while not noMoreSuccessors(successors, visited):
-        stack.push(successors[0])
-        dfsOutput.push(successors[0])
-        visited.append(successors[0])
-        if successors[0] not in parents:
-            parents[successors[0]] = currentNode
-        currentNode = successors[0]
-        successors = problem.getSuccessors(currentNode[0])
+    # If we still haven't come across a goalNode
+    if goalNode is None:
+        print("NOT YET")
+        while stack.isEmpty() is not True:
+            # Continue performing DFS Search
+            currentNode = stack.pop()
+            successors = problem.getSuccessors(currentNode[0])
+            for successor in successors:
+                successorCoordinates = successor[0]
+                if successorCoordinates not in visited:
+                    if problem.isGoalState(successorCoordinates):
+                        if successor not in parents:
+                            parents[successor] = currentNode
+                        goalNode = successor
+                        break
+                    else:
+                        if successor not in parents:
+                            parents[successor] = currentNode
+                        stack.push(successor)
+                        visited.append(successorCoordinates)
 
-    if foundGoalState:
-        return returnActionsList(problem.getStartState(), successors[0], parents)
-
-    # Check for unvisited nodes by back-tracking the stack
-    currentNode = stack.pop()
-    while not stack.isEmpty():
-        successors = problem.getSuccessors(currentNode[0])
-        if not containsGoalNode(successors, problem):
-            visitRemainingNodes(currentNode, successors, visited, stack, dfsOutput, parents)
-        else:
-            goalNode = getGoalNode(successors, problem, currentNode, parents)
-            return returnActionsList(problem.getStartState(), goalNode, parents)
-        currentNode = stack.pop()
+    if goalNode is not None:
+        print("FOUND GOAL: ", goalNode)
+    # We should've come across the goal node by now
+    return returnActionsList(goalNode, parents)
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
@@ -198,10 +210,12 @@ def visitRemainingNodes(currentNode, successors, visited, stack, dfsOutput, pare
                     parents[successor] = currentNode
                 return
 
-def returnActionsList(start, goal, parents):
+def returnActionsList(goal, parents):
     "Returns Direction objects' path list from start to goal"
     actionsStack = util.Stack()
     currentNode = goal
+    actionsStack.push(currentNode)
+    print(parents[parents[currentNode]])
     while parents[parents[currentNode]] is not None:
         actionsStack.push(parents[currentNode])
         currentNode = parents[currentNode]
