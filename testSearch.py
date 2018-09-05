@@ -73,110 +73,73 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]
 
 def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first.
+    stack = util.Stack();
+    explored = []
 
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
 
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
+    def expandSuccessors(aNode):
+        """
+        Recursively adds successors to the top of the stack, and adds them to the explored set
+        If a successor is in the explored set it is ignored.
+        Repeats process until goal is reached or stack is empty
+        """
+        for successor, action, stepCost in problem.getSuccessors(aNode[0]):
+            newNode = (successor, action, aNode, stepCost);
+            # Add to stack if we didn't explore already
+            if newNode[0] not in explored:
+                if problem.isGoalState(newNode[0]):
+                    return newNode;
+                stack.push(newNode)
+                explored.insert(0, newNode[0])
 
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    """
-    # Need to somehow make this cleaner.... maybe use recursion instead
-    stack = util.Stack()
-    visited = []
+        # Stack not empty - keep expandingsuccessors
+        if stack.isEmpty() is False:
+            return expandSuccessors(stack.pop());
 
-    currentNode = (problem.getStartState(), None, 0)  # Initialize in the same way as other successor nodes
-    successors = problem.getSuccessors(currentNode[0])
-    parents = {(problem.getStartState(), None, 0): None}  # Assign parent of source node as None
-    goalNode = None
 
-    for successor in successors:
-        successorCoordinates = successor[0]
-        if successorCoordinates not in visited:
-            if problem.isGoalState(successorCoordinates):
-                if successor not in parents:
-                    parents[successor] = currentNode
-                goalNode = successor
-                break
-            else:
-                if successor not in parents:
-                    parents[successor] = currentNode
-                stack.push(successor)
-                visited.append(successorCoordinates)
+    # Create an initial node, and recursively call expandSuccessors
+    finalNode = expandSuccessors((problem.getStartState(), None, None, 0));
 
-    # If we still haven't come across a goalNode
-    if goalNode is None:
-        while stack.isEmpty() is not True:
-            # Continue performing DFS Search
-            currentNode = stack.pop()
-            successors = problem.getSuccessors(currentNode[0])
-            for successor in successors:
-                successorCoordinates = successor[0]
-                if successorCoordinates not in visited:
-                    if problem.isGoalState(successorCoordinates):
-                        if successor not in parents:
-                            parents[successor] = currentNode
-                        goalNode = successor
-                        break
-                    else:
-                        if successor not in parents:
-                            parents[successor] = currentNode
-                        stack.push(successor)
-                        visited.append(successorCoordinates)
+    # Compose directions by going back up the node list
+    directions = [];
+    itr = finalNode;
+    while itr:
+        if itr[1] is not None:  # First state has no direction
+            directions.insert(0, itr[1]);
+        itr = itr[2];  # Next one
 
-    if goalNode is not None:
-        print("FOUND GOAL: ", goalNode)
-    # We should've come across the goal node by now
-    return returnActionsList(goalNode, parents)
+    return directions;
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    visited = []
-    queue = util.Queue()
+    fifoQueue = util.Queue()
+    explored = [];
 
-    currentNode = (problem.getStartState(), None, 0)
-    successors = problem.getSuccessors(currentNode[0])
-    parents = {(problem.getStartState(), None, 0): None}  # Assign parent of source node as None
-    goalNode = None
+    def expandSuccessors(aNode):
+        for successor, action, stepCost in problem.getSuccessors(aNode[0]):
+            newNode = (successor, action, aNode, stepCost);
+            if problem.isGoalState(newNode[0]):
+                return newNode;
 
-    for successor in successors:
-        successorCoordinates = successor[0]
-        if successorCoordinates not in visited:
-            if problem.isGoalState(successorCoordinates):
-                if successor not in parents:
-                    parents[successor] = currentNode
-                goalNode = successor
-                break
-            else:
-                if successor not in parents:
-                    parents[successor] = currentNode
-                queue.push(successor)
-                visited.append(successorCoordinates)
+            if newNode[0] not in explored:
+                fifoQueue.push(newNode);
+                explored.append(newNode[0]);
 
-    if goalNode is None:
-        while queue.isEmpty() is not True:
-            currentNode = queue.pop()
-            successors = problem.getSuccessors(currentNode[0])
-            for successor in successors:
-                successorCoordinates = successor[0]
-                if successorCoordinates not in visited:
-                    if problem.isGoalState(successorCoordinates):
-                        if successor not in parents:
-                            parents[successor] = currentNode
-                        goalNode = successor
-                        break
-                    else:
-                        if successor not in parents:
-                            parents[successor] = currentNode
-                        queue.push(successor)
-                        visited.append(successorCoordinates)
+        # Stack is not empty - keep expanding
+        if fifoQueue.isEmpty() is False:
+            return expandSuccessors(fifoQueue.pop());
 
-    return returnActionsList(goalNode, parents)
+    finalNode = expandSuccessors((problem.getStartState(), None, None, 0));
+
+    directions = [];
+    itr = finalNode;
+    while itr:
+        if itr[1] is not None:  # First state has no direction
+            directions.append(itr[1]);
+        itr = itr[2];  # Next one
+
+    # First node is the goal node, so reverse it so it is the last node
+    directions.reverse();
+    return directions;
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -216,14 +179,11 @@ def visitRemainingNodes(currentNode, successors, visited, stack, dfsOutput, pare
                     parents[successor] = currentNode
                 return
 
-def returnActionsListForBFS(goal, parents):
-    "Returns"
-
-def returnActionsList(goal, parents):
+def returnActionsList(start, goal, parents):
     "Returns Direction objects' path list from start to goal"
     actionsStack = util.Stack()
     currentNode = goal
-    actionsStack.push(currentNode)
+    print(parents[parents[currentNode]])
     while parents[parents[currentNode]] is not None:
         actionsStack.push(parents[currentNode])
         currentNode = parents[currentNode]
