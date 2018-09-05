@@ -99,10 +99,6 @@ def depthFirstSearch(problem):
     successors = problem.getSuccessors(currentNode)
     foundGoalState = False
     while not noMoreSuccessors(successors, visited):
-        if currentNode is not problem.getStartState() and problem.isGoalState(successors[0]):
-            foundGoalState = True
-            print("FOUND GOAL STATE", foundGoalState)
-            break
         stack.push(successors[0])
         dfsOutput.push(successors[0])
         visited.append(successors[0])
@@ -117,16 +113,12 @@ def depthFirstSearch(problem):
     # Check for unvisited nodes by back-tracking the stack
     currentNode = stack.pop()
     while not stack.isEmpty():
-        if currentNode == problem.getStartState():
-            stack.pop()  # Now stack is empty
-            break
         successors = problem.getSuccessors(currentNode[0])
         if not containsGoalNode(successors, problem):
             visitRemainingNodes(currentNode, successors, visited, stack, dfsOutput, parents)
         else:
             goalNode = getGoalNode(successors, problem, currentNode, parents)
             return returnActionsList(problem.getStartState(), goalNode, parents)
-
         currentNode = stack.pop()
 
 def breadthFirstSearch(problem):
@@ -196,9 +188,7 @@ def noMoreSuccessors(successors, visited):
 
 def visitRemainingNodes(currentNode, successors, visited, stack, dfsOutput, parents):
     "Mutatively visits a successor if it hasn't already been visited"
-    if noMoreSuccessors(successors, visited):
-        return
-    else:
+    if not noMoreSuccessors(successors, visited):
         for successor in successors:
             if successor not in visited:
                 visited.append(successor)
@@ -215,6 +205,7 @@ def returnActionsList(start, goal, parents):
     while parents[parents[currentNode]] is not None:
         actionsStack.push(parents[currentNode])
         currentNode = parents[currentNode]
+    actionsStack.printSelf()
     return actionObjectVersion(actionsStack)
 
 def actionObjectVersion(stack):
