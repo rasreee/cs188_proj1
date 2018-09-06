@@ -87,9 +87,8 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     stack = util.Stack()
-    stack.push((problem.getStartState(), {}))
+    stack.push( (problem.getStartState(), {}) )
     visited = set()
-
     while True:
         currentNode = stack.pop()
         currentNodeCoords = currentNode[0]
@@ -100,58 +99,51 @@ def depthFirstSearch(problem):
             visited.add(currentNodeCoords)
             successors = problem.getSuccessors(currentNodeCoords)
             for index in range(len(successors)):  # Left-most successor to right-most successor
-                actionsList = (list(currentNodeAction))
+                actionsList = list(currentNodeAction)
                 actionsList.append(successors[index][1])
                 stack.push( (successors[index][0], actionsList) )
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    visited = []
     queue = util.Queue()
-
-    currentNode = (problem.getStartState(), None, 0)
-    successors = problem.getSuccessors(currentNode[0])
-    parents = {(problem.getStartState(), None, 0): None}  # Assign parent of source node as None
-    goalNode = None
-
-    for successor in successors:
-        successorCoordinates = successor[0]
-        if successorCoordinates not in visited:
-            if problem.isGoalState(successorCoordinates):
-                if successor not in parents:
-                    parents[successor] = currentNode
-                goalNode = successor
-                break
-            else:
-                if successor not in parents:
-                    parents[successor] = currentNode
-                queue.push(successor)
-                visited.append(successorCoordinates)
-
-    if goalNode is None:
-        while queue.isEmpty() is not True:
-            currentNode = queue.pop()
-            successors = problem.getSuccessors(currentNode[0])
-            for successor in successors:
-                successorCoordinates = successor[0]
-                if successorCoordinates not in visited:
-                    if problem.isGoalState(successorCoordinates):
-                        if successor not in parents:
-                            parents[successor] = currentNode
-                        goalNode = successor
-                        break
-                    else:
-                        if successor not in parents:
-                            parents[successor] = currentNode
-                        queue.push(successor)
-                        visited.append(successorCoordinates)
-
-    return returnActionsList(goalNode, parents)
+    queue.push( (problem.getStartState(), {}) )
+    visited = set()
+    while True:
+        if queue.isEmpty():  # This should never be the case without having reached the goal
+            break
+        currentNode = queue.pop()
+        currentNodeCoords = currentNode[0]
+        currentNodeAction = currentNode[1]
+        if not currentNodeCoords in visited:
+            visited.add(currentNodeCoords)
+            successors = problem.getSuccessors(currentNodeCoords)
+            for index in range(len(successors)):
+                if problem.isGoalState(currentNode[0]):
+                    return currentNodeAction
+                actionsList = list(currentNodeAction)
+                actionsList.append(successors[index][1])
+                queue.push( (successors[index][0], actionsList) )
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    fringe = util.PriorityQueue()  # fringe is implemented as a PriorityQueue
-
+    priorityQueue = util.PriorityQueue()
+    priorityQueue.push((problem.getStartState(), {}), problem.getCostOfActions({}))
+    visited = set()
+    while True:
+        if priorityQueue.isEmpty():
+            break
+        currentNode = priorityQueue.pop()
+        currentNodeCoords = currentNode[0]
+        currentNodeAction = currentNode[1]
+        if problem.isGoalState(currentNodeCoords):
+            return currentNodeAction
+        if not currentNodeCoords in visited:
+            visited.add(currentNodeCoords)
+            successors = problem.getSuccessors(currentNodeCoords)
+            for index in range(len(successors)):
+                actionsList = list(currentNodeAction)
+                actionsList.append(successors[index][1])
+                priorityQueue.push( (successors[index][0], actionsList), problem.getCostOfActions(actionsList) )
 
 def nullHeuristic(state, problem=None):
     """
