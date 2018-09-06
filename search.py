@@ -87,7 +87,7 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     stack = util.Stack()
-    stack.push( (problem.getStartState(), {}) )
+    stack.push( (problem.getStartState(), []) )
     visited = set()
     while True:
         currentNode = stack.pop()
@@ -99,14 +99,13 @@ def depthFirstSearch(problem):
             visited.add(currentNodeCoords)
             successors = problem.getSuccessors(currentNodeCoords)
             for index in range(len(successors)):  # Left-most successor to right-most successor
-                actionsList = list(currentNodeAction)
-                actionsList.append(successors[index][1])
+                actionsList = currentNodeAction + [successors[index][1]]
                 stack.push( (successors[index][0], actionsList) )
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     queue = util.Queue()
-    queue.push( (problem.getStartState(), {}) )
+    queue.push( (problem.getStartState(), []) )
     visited = set()
     while True:
         if queue.isEmpty():  # This should never be the case without having reached the goal
@@ -121,14 +120,13 @@ def breadthFirstSearch(problem):
                 if problem.isGoalState(currentNode[0]):
                     print(currentNodeAction)
                     return currentNodeAction
-                actionsList = list(currentNodeAction)
-                actionsList.append(successors[index][1])
+                actionsList = currentNodeAction + [successors[index][1]]
                 queue.push( (successors[index][0], actionsList) )
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     priorityQueue = util.PriorityQueue()
-    priorityQueue.push((problem.getStartState(), {}), problem.getCostOfActions({}))
+    priorityQueue.push((problem.getStartState(), []), problem.getCostOfActions([]))
     visited = set()
     while True:
         if priorityQueue.isEmpty():
@@ -142,8 +140,7 @@ def uniformCostSearch(problem):
             visited.add(currentNodeCoords)
             successors = problem.getSuccessors(currentNodeCoords)
             for index in range(len(successors)):
-                actionsList = list(currentNodeAction)
-                actionsList.append(successors[index][1])
+                actionsList = currentNodeAction + [successors[index][1]]
                 priorityQueue.push( (successors[index][0], actionsList), problem.getCostOfActions(actionsList) )
 
 def nullHeuristic(state, problem=None):
@@ -156,8 +153,8 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     priorityQueue = util.PriorityQueue()
-    totalCost = problem.getCostOfActions({}) + heuristic(problem.getStartState(), problem)
-    priorityQueue.push((problem.getStartState(), {}), totalCost)
+    totalCost = problem.getCostOfActions([]) + heuristic(problem.getStartState(), problem)
+    priorityQueue.push((problem.getStartState(), []), totalCost)
     visited = set()
     while True:
         if priorityQueue.isEmpty():  # Again, this should never happen.
@@ -171,8 +168,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             visited.add(currentNodeCoords)
             successors = problem.getSuccessors(currentNodeCoords)
             for index in range(len(successors)):
-                actionsList = list(currentNodeAction)
-                actionsList.append(successors[index][1])
+                actionsList = currentNodeAction + [successors[index][1]]
                 totalCost = problem.getCostOfActions(actionsList) + heuristic(successors[index][0], problem)
                 priorityQueue.push((successors[index][0], actionsList), totalCost)
 
