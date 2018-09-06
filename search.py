@@ -91,18 +91,16 @@ def depthFirstSearch(problem):
     visited = []
 
     currentNode = (problem.getStartState(), None, 0)  # Initialize in the same way as other successor nodes
-    successors = problem.getSuccessors(currentNode[0])
     parents = {(problem.getStartState(), None, 0): None}  # Assign parent of source node as None
     goalNode = None
 
-    for successor in successors:
+    for successor in problem.getSuccessors(currentNode[0]):
         successorCoordinates = successor[0]
         if successorCoordinates not in visited:
             if problem.isGoalState(successorCoordinates):
                 if successor not in parents:
                     parents[successor] = currentNode
                 goalNode = successor
-                break
             else:
                 if successor not in parents:
                     parents[successor] = currentNode
@@ -114,23 +112,20 @@ def depthFirstSearch(problem):
         while stack.isEmpty() is not True:
             # Continue performing DFS Search
             currentNode = stack.pop()
-            successors = problem.getSuccessors(currentNode[0])
-            for successor in successors:
+            for successor in problem.getSuccessors(currentNode[0]):
                 successorCoordinates = successor[0]
                 if successorCoordinates not in visited:
                     if problem.isGoalState(successorCoordinates):
                         if successor not in parents:
                             parents[successor] = currentNode
                         goalNode = successor
-                        break
+                        return returnActionsList(goalNode, parents)
                     else:
                         if successor not in parents:
                             parents[successor] = currentNode
                         stack.push(successor)
                         visited.append(successorCoordinates)
 
-    if goalNode is not None:
-        print("FOUND GOAL: ", goalNode)
     # We should've come across the goal node by now
     return returnActionsList(goalNode, parents)
 
@@ -180,8 +175,8 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.PriorityQueue()  # fringe is implemented as a PriorityQueue
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -195,6 +190,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
 
+
+# Helper functions that we may or may not use
 def noMoreSuccessors(successors, visited):
     "Returns whether there are any more successors not already visited"
     if visited == [] and successors != []:
@@ -216,9 +213,6 @@ def visitRemainingNodes(currentNode, successors, visited, stack, dfsOutput, pare
                     parents[successor] = currentNode
                 return
 
-def returnActionsListForBFS(goal, parents):
-    "Returns"
-
 def returnActionsList(goal, parents):
     "Returns Direction objects' path list from start to goal"
     actionsStack = util.Stack()
@@ -227,24 +221,9 @@ def returnActionsList(goal, parents):
     while parents[parents[currentNode]] is not None:
         actionsStack.push(parents[currentNode])
         currentNode = parents[currentNode]
-    actionsStack.printSelf()
-    return actionObjectVersion(actionsStack)
-
-def actionObjectVersion(stack):
-    """Converts stack of String directions to actual direction objects NORTH, SOUTH, EAST, WEST
-    making sure to exclude start"""
-    from game import Directions
     result = []
-    while not stack.isEmpty():
-        current = stack.pop()
-        if current[1] == "North":
-            result.append(Directions.NORTH)
-        if current[1] == "East":
-            result.append(Directions.EAST)
-        if current[1] == "South":
-            result.append(Directions.SOUTH)
-        if current[1] == "West":
-            result.append(Directions.WEST)
+    while not actionsStack.isEmpty():
+        result.append(actionsStack.pop()[1])
     return result
 
 def containsGoalNode(successors, problem):
