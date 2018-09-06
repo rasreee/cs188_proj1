@@ -86,48 +86,23 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    # Need to somehow make this cleaner.... maybe use recursion instead
     stack = util.Stack()
-    visited = []
+    stack.push((problem.getStartState(), {}))
+    visited = set()
 
-    currentNode = (problem.getStartState(), None, 0)  # Initialize in the same way as other successor nodes
-    parents = {(problem.getStartState(), None, 0): None}  # Assign parent of source node as None
-    goalNode = None
-
-    for successor in problem.getSuccessors(currentNode[0]):
-        successorCoordinates = successor[0]
-        if successorCoordinates not in visited:
-            if problem.isGoalState(successorCoordinates):
-                if successor not in parents:
-                    parents[successor] = currentNode
-                goalNode = successor
-            else:
-                if successor not in parents:
-                    parents[successor] = currentNode
-                stack.push(successor)
-                visited.append(successorCoordinates)
-
-    # If we still haven't come across a goalNode
-    if goalNode is None:
-        while stack.isEmpty() is not True:
-            # Continue performing DFS Search
-            currentNode = stack.pop()
-            for successor in problem.getSuccessors(currentNode[0]):
-                successorCoordinates = successor[0]
-                if successorCoordinates not in visited:
-                    if problem.isGoalState(successorCoordinates):
-                        if successor not in parents:
-                            parents[successor] = currentNode
-                        goalNode = successor
-                        return returnActionsList(goalNode, parents)
-                    else:
-                        if successor not in parents:
-                            parents[successor] = currentNode
-                        stack.push(successor)
-                        visited.append(successorCoordinates)
-
-    # We should've come across the goal node by now
-    return returnActionsList(goalNode, parents)
+    while True:
+        currentNode = stack.pop()
+        currentNodeCoords = currentNode[0]
+        currentNodeAction = currentNode[1]
+        if problem.isGoalState(currentNodeCoords):
+            return currentNodeAction
+        if currentNodeCoords not in visited:
+            visited.add(currentNodeCoords)
+            successors = problem.getSuccessors(currentNodeCoords)
+            for index in range(len(successors)):  # Left-most successor to right-most successor
+                actionsList = (list(currentNodeAction))
+                actionsList.append(successors[index][1])
+                stack.push( (successors[index][0], actionsList) )
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
