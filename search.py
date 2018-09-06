@@ -119,6 +119,7 @@ def breadthFirstSearch(problem):
             successors = problem.getSuccessors(currentNodeCoords)
             for index in range(len(successors)):
                 if problem.isGoalState(currentNode[0]):
+                    print(currentNodeAction)
                     return currentNodeAction
                 actionsList = list(currentNodeAction)
                 actionsList.append(successors[index][1])
@@ -154,9 +155,26 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    priorityQueue = util.PriorityQueue()
+    totalCost = problem.getCostOfActions({}) + heuristic(problem.getStartState(), problem)
+    priorityQueue.push((problem.getStartState(), {}), totalCost)
+    visited = set()
+    while True:
+        if priorityQueue.isEmpty():  # Again, this should never happen.
+            return
+        currentNode = priorityQueue.pop()
+        currentNodeCoords = currentNode[0]
+        currentNodeAction = currentNode[1]
+        if problem.isGoalState(currentNodeCoords):
+            return currentNodeAction
+        if not currentNodeCoords in visited:
+            visited.add(currentNodeCoords)
+            successors = problem.getSuccessors(currentNodeCoords)
+            for index in range(len(successors)):
+                actionsList = list(currentNodeAction)
+                actionsList.append(successors[index][1])
+                totalCost = problem.getCostOfActions(actionsList) + heuristic(successors[index][0], problem)
+                priorityQueue.push((successors[index][0], actionsList), totalCost)
 
 # Helper functions that we may or may not use
 def noMoreSuccessors(successors, visited):
