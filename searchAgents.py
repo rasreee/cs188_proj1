@@ -365,12 +365,23 @@ def cornersHeuristic(state, problem):
     This function should always return a number that is a lower bound on the
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
+
+    FIRST ATTEMPT: Find the distance to the closest corner that hasn't been visited yet, and from there
+    compute distances to that corner's respective closest corner that hasn't been visited,
+    until there are no other corners remaining to visit.
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    currentLocation = state[0]
+    visitedCorners = state[1]
+    if len(visitedCorners) < 4:
+        unvisitedCorners = [c for c in corners if c not in visitedCorners]
+        distances = [util.manhattanDistance(c, currentLocation) for c in unvisitedCorners]
+        if distances is not []:
+            return max(distances)
+        return 0
+    return 0
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"

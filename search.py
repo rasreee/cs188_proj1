@@ -118,7 +118,6 @@ def breadthFirstSearch(problem):
             successors = problem.getSuccessors(currentNodeCoords)
             for index in range(len(successors)):
                 if problem.isGoalState(currentNode[0]):
-                    print(currentNodeAction)
                     return currentNodeAction
                 actionsList = currentNodeAction + [successors[index][1]]
                 queue.push( (successors[index][0], actionsList) )
@@ -155,7 +154,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     priorityQueue = util.PriorityQueue()
     totalCost = problem.getCostOfActions([]) + heuristic(problem.getStartState(), problem)
     priorityQueue.push((problem.getStartState(), []), totalCost)
-    visited = set()
+    visited = []
     while True:
         if priorityQueue.isEmpty():  # Again, this should never happen.
             return
@@ -164,8 +163,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         currentNodeAction = currentNode[1]
         if problem.isGoalState(currentNodeCoords):
             return currentNodeAction
-        if not currentNodeCoords in visited:
-            visited.add(currentNodeCoords)
+        if currentNodeCoords not in visited:
+            visited.append(currentNodeCoords)
             successors = problem.getSuccessors(currentNodeCoords)
             for index in range(len(successors)):
                 actionsList = currentNodeAction + [successors[index][1]]
