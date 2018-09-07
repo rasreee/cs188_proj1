@@ -287,18 +287,16 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
-        self.cornersReached = 0
+        self.visitedCorners = []
 
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
 
-        SOLUTION: Since in Q1-4 we've been implementing nodes as their (x,y) tuples
-        and the path built thus far, we'll return just that,
-        i.e. (starting coordinates, empty array representing corners already traversed)
+        SOLUTION: Just return starting coordinates
         """
-        return (self.startingPosition, [])
+        return (self.startingPosition, self.visitedCorners)
 
     def isGoalState(self, state):
         """

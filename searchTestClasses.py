@@ -187,6 +187,7 @@ class GraphSearchTest(testClasses.TestCase):
             solution = alg(problem)
 
         if type(solution) != type([]):
+            print(solution)
             return None, None, 'The result of %s must be a list. (Instead, it is %s)' % (self.alg, type(solution))
 
         return solution, problem.getExpandedStates(), None
