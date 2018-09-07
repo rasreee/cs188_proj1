@@ -367,9 +367,13 @@ def cornersHeuristic(state, problem):
     FIRST ATTEMPT: Find the distance to the closest corner that hasn't been visited yet, and from there
     compute distances to that corner's respective closest corner that hasn't been visited,
     until there are no other corners remaining to visit.
+
+    SECOND ATTEMPT: First attempt was very unsuccessful. This time around we're going to measure distances
+    from the current state to all the unvisited corners and take the maximum of those distances and return it.
+    This should work because Pacman will at the very least have to take that number of steps on the way
+    to a corner, be it stopping on the way at another corner closer to it or not.
     """
     corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     currentLocation = state[0]
     visitedCorners = state[1]
@@ -470,6 +474,13 @@ def foodHeuristic(state, problem):
     value, try: problem.heuristicInfo['wallCount'] = problem.walls.count()
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
+
+    FIRST ATTEMPT: We took the total number of food objects on the maze, which will give us an admissible
+    heuristic, but it caused the algorithm to expand to 12517 nodes. So we needed to do much better.
+
+    SECOND ATTEMPT: We computed the manhattan distances from the current position of Pacman to each
+    food object, and we took the maximum of those distances and returned it. This caused the algorithm to expand
+    9551 nodes, but that still wasn't enough for full credit.
     """
     position, foodGrid = state
     if foodGrid.asList() == []:
@@ -496,11 +507,9 @@ class ClosestDotSearchAgent(SearchAgent):
         print('Path found with cost %d.' % len(self.actions))
 
     def findPathToClosestDot(self, gameState):
-        "Returns a path (a list of actions) to the closest dot, starting from gameState"
+        """Returns a path (a list of actions) to the closest dot, starting from gameState.
+        SOLUTION: We decided to use breadth first search to "reach" around for the closest dot."""
         # Here are some useful elements of the startState
-        startPosition = gameState.getPacmanPosition()
-        food = gameState.getFood()
-        walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
         return search.breadthFirstSearch(problem)
 
@@ -533,6 +542,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         """
         The state is Pacman's position. Fill this in with a goal test that will
         complete the problem definition.
+
+        SOLUTION: The given state is the goal state if it is one of the food objects.
         """
         x,y = state
         return (x, y) in self.food.asList()
